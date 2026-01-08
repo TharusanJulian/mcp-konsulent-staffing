@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  konsulent-api:
+    build: ./konsulent-api
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  llm-verktoy-api:
+    build: ./llm-verktoy-api
+    environment:
+      - KONSULENT_API_URL=http://konsulent-api:8000
+    depends_on:
+      konsulent-api:
+        condition: service_healthy
+    ports:
+      - "8002:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
